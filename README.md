@@ -1,90 +1,30 @@
-# DTI
-Homomorphic-encryption (lightweight partial homomorphic encryption )
-### **README: Hybrid Encryption Framework with LightPHE for Employee Data Management**
+# Secure Role-Based Access Control System
 
----
+## Overview
+This project implements a **Secure Role-Based Access Control (RBAC) System** using RSA encryption and bcrypt hashing. The system allows administrators to assign roles and manage users, while authorized users can access encrypted employee data.
 
-#### **Framework Overview**
-This framework demonstrates a secure, scalable, and efficient approach to handling sensitive and non-sensitive employee data in a hybrid encryption setup. By integrating AES for sensitive data encryption and LightPHE for homomorphic computations, it provides robust protection during data ingestion, storage, and processing while ensuring privacy-preserving computations.
+## Features
+- **RSA Encryption & Decryption**: Employee salary and address are encrypted using RSA (2048-bit).
+- **Bcrypt Password Hashing**: Secure storage of user passwords.
+- **Role-Based Access Control**: Users can be assigned roles as "Authorized" or "Malicious".
+- **Admin Panel**: GUI-based user management for adding and flagging users.
+- **User Panel**: GUI-based access request system.
+- **Persistent User Data**: Uses a JSON file to store user credentials and roles securely.
 
----
-
-### **Features**
-1. **Secure Data Handling**:
-   - Sensitive data is encrypted using AES.
-   - Homomorphic encryption (LightPHE) ensures secure processing of non-sensitive data.
-
-2. **Scalable Storage**:
-   - Encrypted data is stored in the cloud, simulating scalable storage mechanisms.
-
-3. **Privacy-Preserving Computations**:
-   - Perform operations on encrypted data without decrypting it, leveraging homomorphic encryption.
-
-4. **Integrity Auditing**:
-   - Auditing and integrity checks via blockchain for compliance and data transparency.
-
----
-
-### **Framework Architecture**
-
-1. **Data Ingestion Layer**:
-   - Allows users to upload sensitive and non-sensitive employee data.
-   - Prepares data for encryption.
-
-2. **Encryption Layer**:
-   - Applies hybrid encryption:
-     - AES for sensitive information.
-     - LightPHE for enabling computations on encrypted non-sensitive data.
-
-3. **Storage Layer**:
-   - Secures encrypted data in cloud storage for scalable and safe management.
-
-4. **Processing Layer**:
-   - Enables computations like payroll calculations directly on encrypted data using LightPHE.
-
-5. **Auditing Layer**:
-   - Uses blockchain to log transactions and ensure data integrity.
-
----
-
-### **Setup and Usage**
-
-#### **Prerequisites**
-1. Python 3.8+.
-2. Libraries:
-   - `pycryptodome` (for AES encryption).
-   - `lightphe` (for homomorphic encryption).
-3. Blockchain Framework (optional for auditing).
-4. Cloud storage API (optional for cloud simulation).
-
-#### **Installation**
-Install the required libraries:
-```bash
-pip install pycryptodome lightphe
+## Dependencies
+Ensure you have the following Python libraries installed:
+```sh
+pip install pycryptodome pandas bcrypt ipywidgets
 ```
 
-#### **Usage Steps**
-1. **Data Ingestion**:
-   - Collect employee data (e.g., name, salary, and sensitive information).
+## Files & Structure
+- `main.py` - The core script implementing the system.
+- `user_data.json` - Stores user roles and hashed passwords.
+- `rsa_key.pem` - Stores the RSA key for encryption.
 
-2. **Encryption**:
-   - Encrypt sensitive data with AES.
-   - Encrypt non-sensitive data (e.g., salary) with LightPHE for secure computations.
+## Framework Code
 
-3. **Data Storage**:
-   - Simulate secure storage by returning encrypted data (or use cloud APIs for actual implementation).
-
-4. **Processing**:
-   - Perform homomorphic computations on encrypted data, such as calculating total payroll.
-
-5. **Auditing**:
-   - Log changes and ensure integrity using blockchain (conceptual in this implementation).
-
----
-
-### **Framework Code**
-
-#### **Data Ingestion Layer**
+### Data Ingestion Layer
 ```python
 def ingest_employee_data():
     return {
@@ -94,7 +34,7 @@ def ingest_employee_data():
     }
 ```
 
-#### **Encryption Layer**
+### Encryption Layer
 ```python
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -103,73 +43,50 @@ from lightphe import LightPHE
 
 def aes_encrypt(data, key):
     cipher = AES.new(key, AES.MODE_CBC)
-    return cipher.iv + cipher.encrypt(pad(data.encode(), AES.block_size))
-
-lightphe_cs = LightPHE(algorithm_name='Paillier')
-
-def encrypt_employee_data(employee_data):
-    aes_key = os.urandom(16)
-    encrypted_data = {}
-    for emp_id, info in employee_data.items():
-        encrypted_info = aes_encrypt(info['sensitive_info'], aes_key)
-        encrypted_salary = lightphe_cs.encrypt(info['salary'])
-        encrypted_data[emp_id] = {
-            'name': info['name'],
-            'encrypted_salary': encrypted_salary,
-            'encrypted_sensitive_info': encrypted_info,
-            'aes_key': aes_key,
-        }
-    return encrypted_data
+    ciphertext = cipher.encrypt(pad(data.encode(), AES.block_size))
+    return cipher.iv + ciphertext
 ```
 
-#### **Storage Layer**
-```python
-def store_encrypted_data(encrypted_data):
-    print("Storing encrypted data in cloud...")
-    return encrypted_data
-```
+## How It Works
+1. **RSA Key Management**:
+   - The script generates or loads an RSA key for encrypting sensitive data.
+   - Employee salaries and addresses are encrypted using **PKCS1_OAEP**.
 
-#### **Processing Layer**
-```python
-def compute_total_payroll(encrypted_data):
-    total = lightphe_cs.encrypt(0)
-    for info in encrypted_data.values():
-        total += info['encrypted_salary']
-    return total
+2. **User Authentication & Role Management**:
+   - Users are stored with a hashed password using bcrypt.
+   - Admins can assign or change user roles.
+   - Malicious users can be flagged via the Admin Panel.
 
-def decrypt_total_payroll(total_encrypted):
-    return lightphe_cs.decrypt(total_encrypted)
-```
+3. **Admin Panel**:
+   - Add new users with a role and password.
+   - Flag existing users as malicious.
 
-#### **Auditing Layer**
-```python
-def audit_with_blockchain(encrypted_data):
-    print("Auditing data integrity with blockchain...")
+4. **User Panel**:
+   - Users enter their credentials to request access.
+   - If authorized, decrypted employee data is displayed.
+
+## Running the System
+Run the script and choose between Admin or User mode:
+```sh
+python main.py
 ```
+- **Admin Mode**: Allows adding and flagging users.
+- **User Mode**: Allows access request based on credentials.
+
+## Security Measures
+- **Passwords are stored securely** with bcrypt hashing.
+- **Data is encrypted** before storage using RSA.
+- **Malicious users are flagged** to restrict access.
+
+## Future Improvements
+- Implement a database instead of JSON for better scalability.
+- Add multi-factor authentication (MFA) for stronger security.
+- Use AES for encrypting large datasets efficiently.
+
+## License
+This project is open-source and available for use under the MIT License.
 
 ---
 
-### **Execution**
-Run the framework as follows:
-```python
-if __name__ == "__main__":
-    employee_data = ingest_employee_data()
-    encrypted_data = encrypt_employee_data(employee_data)
-    stored_data = store_encrypted_data(encrypted_data)
-    total_payroll_encrypted = compute_total_payroll(stored_data)
-    total_payroll_decrypted = decrypt_total_payroll(total_payroll_encrypted)
-    print(f"\nTotal Payroll (Decrypted): ${total_payroll_decrypted}")
-    audit_with_blockchain(stored_data)
-```
+*Created by Secure Access Control Team* 🚀
 
----
-
-### **Benefits**
-- **Security**: AES ensures confidentiality for sensitive data, while LightPHE provides secure computations.
-- **Efficiency**: Lightweight homomorphic encryption is computationally efficient compared to fully homomorphic encryption.
-- **Scalability**: Cloud-based architecture supports large-scale data operations.
-- **Transparency**: Blockchain auditing enhances trust and compliance.
-
----
-
-For further inquiries or contributions, please contact the development team or submit a pull request.
