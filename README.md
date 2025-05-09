@@ -43,5 +43,7 @@ Interpretation:
 
 ```bash
 pip install streamlit pandas scikit-learn
+```
+
 
 
